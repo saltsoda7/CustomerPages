@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Bag</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 60%;
+            max-width: 600px;
+            border: 2px solid black;
+            padding: 20px;
+            position: relative;
+            height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+        h1 {
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #cccccc;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .center-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            text-align: center;
+        }
+        .center-content p {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+        }
+        .option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .option button {
+            width: 120px;
+            height: 80px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 0; 
+        }
+        #yes-button {
+            color: red;
+            border: 2px solid red;
+            background-color: white;
+        }
+        #no-button {
+            color: black;
+            border: 2px solid black;
+            background-color: white;
+        }
+        #back-button {
+            color: red;
+            border: 2px solid red;
+            background-color: white;
+            cursor: pointer;
+            padding: 10px 30px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        button:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Paper Bag</h1>
+        <hr>
+        <div class="center-content">
+            <p>Would you like a paper bag<br>AUD 0.3 per bag</p>
+            <div class="options">
+                <div class="option">
+                    <button id="yes-button" onclick="saveBagChoice('yes')">Yes</button>
+                </div>
+                <div class="option">
+                    <button id="no-button" onclick="saveBagChoice('no')">No</button>
+                    <p>I will use my own bag</p>
+                </div>
+            </div>
+        </div>
+        <button id="back-button" onclick="location.href='Scan Item.html'">BACK</button>
+    </div>
+
+    <script>
+        function saveBagChoice(choice) {
+            localStorage.setItem('bagChoice', choice);
+            location.href = 'Pay With Card.html'; 
+        }
+    </script>
+</body>
+</html>

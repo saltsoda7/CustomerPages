@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Item</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 60%;
+            max-width: 700px;
+            border: 2px solid black;
+            padding: 40px;
+            position: relative;
+        }
+        h1 {
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #cccccc;
+            margin-bottom: 20px;
+        }
+        .item-list {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .item-list span {
+            font-size: 18px;
+        }
+        .discount {
+            color: red;
+            font-size: 16px;
+        }
+        .summary {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+        button {
+            padding: 10px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 2px solid black;
+            background-color: white;
+        }
+        #next-button {
+            color: red;
+            border-color: red;
+        }
+        button:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 300px;
+            text-align: center;
+        }
+        .modal-button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 2px solid black;
+            background-color: white;
+        }
+        #confirm-button {
+            color: red;
+            border-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Scan Item</h1>
+        <hr>
+        <div id="items-container"></div>
+        <div class="summary">
+            <span id="total-items"></span>
+            <span id="total-price"></span>
+        </div>
+        <div class="button-container">
+            <button onclick="location.href='Self Checkout.html'">BACK</button>
+            <button id="next-button" onclick="openModal()">NEXT</button>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <p id="modal-message">You have scanned xx items</p>
+            <p>If this is incorrect, try again</p>
+            <button class="modal-button" onclick="closeModal()">Try Again</button>
+            <button id="confirm-button" class="modal-button" onclick="confirmItems()">Confirm</button>
+        </div>
+    </div>
+
+    <script>
+        let scannedItems = [];
+        let totalPrice = 0;
+
+        // Connect to WebSocket server
+        const ws = new WebSocket('ws://localhost:8080');  // Make sure your WebSocket server is running
+
+        // When a new item is received from the WebSocket server
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            const item = data.item;  // Expecting data format: { item: { name, price, discount } }
+            scannedItems.push(item);
+            updateDisplay();  // Update the display
+        };
+
+        function updateDisplay() {
+            const container = document.getElementById('items-container');
+            container.innerHTML = ''; // Clear previous items
+
+            totalPrice = 0;
+            scannedItems.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.classList.add('item-list');
+                itemDiv.innerHTML = `<span>${index + 1}. ${item.name}</span><span>AUD ${item.price}</span>`;
+                container.appendChild(itemDiv);
+
+                if (item.discount) {
+                    const discountDiv = document.createElement('div');
+                    discountDiv.classList.add('discount');
+                    discountDiv.innerHTML = `<span>${item.discount}% discount</span>`;
+                    container.appendChild(discountDiv);
+                }
+
+                totalPrice += item.price - (item.price * (item.discount || 0) / 100);
+            });
+
+            document.getElementById('total-items').textContent = `${scannedItems.length} items`;
+            document.getElementById('total-price').textContent = `Total AUD ${totalPrice.toFixed(2)}`;
+        }
+
+        // Open the modal
+        function openModal() {
+            document.getElementById('modal').style.display = 'flex';
+            document.getElementById('modal-message').textContent = `You have scanned ${scannedItems.length} items`;
+        }
+
+        // Close the modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        // Confirm and proceed to next step
+        function confirmItems() {
+            // Store the scanned items count and total price in localStorage
+            localStorage.setItem('itemsCount', scannedItems.length);
+            localStorage.setItem('totalPrice', totalPrice.toFixed(2));
+
+            closeModal();
+            window.location.href = 'Paper Bag.html'; // Redirect to Paper Bag page
+        }
+ 
+    </script>
+</body>
+</html>

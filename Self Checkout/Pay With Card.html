@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay with Card</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            width: 60%; 
+            max-width: 600px;
+            height: 300px;  
+            border: 2px solid black;
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .details {
+            width: 60%;
+        }
+        h1 {
+            text-align: left;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #cccccc;
+            margin-bottom: 20px;
+        }
+        .subtotal, .total {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .total {
+            font-weight: bold;
+        }
+        .instructions {
+            width: 30%;
+            text-align: right;
+        }
+        .instructions p {
+            font-size: 20px;
+            color: red;
+            margin-top: 80px;  
+            margin-bottom: 20px;  
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="details">
+            <h1>Pay with Card</h1>
+            <hr>
+            <div class="subtotal">
+                <span id="subtotal-items">Subtotal (xx items / 0 bags)</span>
+                <span id="subtotal-price">AUD xx</span>
+            </div>
+            <div class="total">
+                <span>Total</span>
+                <span id="total-price">AUD xx</span>
+            </div>
+        </div>
+        <div class="instructions">
+            <p id="status-message">Wait for terminal</p>
+        </div>
+    </div>
+
+    <script>
+        const itemsCount = localStorage.getItem('itemsCount');  
+        const totalPrice = localStorage.getItem('totalPrice');  
+        const bagChoice = localStorage.getItem('bagChoice') || 'no';  
+
+        const bagPrice = bagChoice === 'yes' ? 0.3 : 0;  
+        const finalTotalPrice = parseFloat(totalPrice) + bagPrice;  
+
+        document.getElementById('subtotal-items').textContent = `Subtotal (${itemsCount} items / ${bagChoice === 'yes' ? 1 : 0} bags)`;
+        document.getElementById('subtotal-price').textContent = `AUD ${totalPrice}`;
+        document.getElementById('total-price').textContent = `AUD ${finalTotalPrice.toFixed(2)}`;
+
+        const statusMessage = document.getElementById('status-message');
+        const ws = new WebSocket('ws://localhost:8080');
+
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+
+            if (data.cardStatus === 'accepted') {
+                statusMessage.textContent = 'Accepted';
+                statusMessage.style.color = 'green';
+                setTimeout(() => {
+                    window.location.href = 'Payment Complete.html';  
+                }, 2000);  
+            }
+        };
+    </script>
+</body>
+</html>
